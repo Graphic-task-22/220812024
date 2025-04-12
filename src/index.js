@@ -7,19 +7,38 @@ import Stats from 'three/addons/libs/stats.module.js';
 import pointLight  from './light/pointlight';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import line from './mesh/line';
+import points from './mesh/EllipseCurve';
+import splineObject from './mesh/SplineCurve';
+import bezierline from './mesh/QuadraticBezierCurve';
+import curveline from './mesh/CurvePath';
+import mesh from './mesh/mountain';
+import { updatePosition } from './mesh/mountain';
 
 console.log(THREE);
 
 // 全局变量
 let renderer,scene,camera;
-let ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+let cameraAngle = 0;
+const radius = 300; // 绕原点的半径（可以根据场景大小调整）
 
 function init(){
   console.log(window.devicePixelRatio);
     // 建立场景
     scene = new THREE.Scene();
     // scene.background = new THREE.Color(0xffffff);//白色环境背景
+    // scene.add(line);
+    // scene.add(points);
+    // scene.add(splineObject);
+    // scene.add(bezierline);
+    // scene.add(curveline);
+    scene.add(mesh);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // 柔和的环境光
+    scene.add(ambientLight);
 
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // 平行光（模拟太阳）
+    directionalLight.position.set(100, 100, 100);
+    scene.add(directionalLight);
 
     // 创建Sprite材质
     const textureLoader = new THREE.TextureLoader();
@@ -31,25 +50,25 @@ function init(){
     });
     
 
-    // 创建多个Sprite粒子
-    const spriteCount = 100; // 设定粒子数量
-    for (let i = 0; i < spriteCount; i++) {
-        const sprite = new THREE.Sprite(spriteMaterial);
+    // // 创建多个Sprite粒子
+    // const spriteCount = 100; // 设定粒子数量
+    // for (let i = 0; i < spriteCount; i++) {
+    //     const sprite = new THREE.Sprite(spriteMaterial);
       
 
-        // 随机大小
-        const scale = Math.random() * 10 + 5;
-        sprite.scale.set(scale, scale, 1);
+    //     // 随机大小
+    //     const scale = Math.random() * 10 + 5;
+    //     sprite.scale.set(scale, scale, 1);
 
-        // 随机位置（-200 到 200 之间）
-        sprite.position.set(
-            (Math.random() - 0.5) * 400, 
-            (Math.random() - 0.5) * 400, 
-            (Math.random() - 0.5) * 400
-        );
+    //     // 随机位置（-200 到 200 之间）
+    //     sprite.position.set(
+    //         (Math.random() - 0.5) * 400, 
+    //         (Math.random() - 0.5) * 400, 
+    //         (Math.random() - 0.5) * 400
+    //     );
 
-        scene.add(sprite);
-    }
+    //      scene.add(sprite);
+    // }
 
     //场景添加点光源
     scene.add(pointLight);
@@ -58,6 +77,8 @@ function init(){
     scene.add(pointLightHelpler);
     // 环境光
     scene.add(ambientLight);
+
+    
 
     // 创建相机 使用的是 PerspectiveCamera（透视摄像机）
     camera = new THREE.PerspectiveCamera(
@@ -90,19 +111,21 @@ function initHelper(params){
       renderer.render(scene, camera); //执行渲染操作
     }); //监听鼠标、键盘事件
 
-    // 添加一个辅助网格地面 网格地面辅助观察GridHelper
-    const gridHelper = new THREE.GridHelper(300, 25, 0x004444, 0x004444);
-    scene.add(gridHelper);
+    // // 添加一个辅助网格地面 网格地面辅助观察GridHelper
+    // const gridHelper = new THREE.GridHelper(300, 25, 0x004444, 0x004444);
+    // scene.add(gridHelper);
 }
 
 //动画
 function animate(){
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  // 立方体旋转
-  sphere.rotation.x += 0.01;
-  sphere.rotation.y += 0.01;
-  // 或 cube.rotateY(0.01)
+  updatePosition();
+  // 摄像机自动旋转
+  cameraAngle += 0.002; // 控制旋转速度
+  camera.position.x = Math.cos(cameraAngle) * radius;
+  camera.position.z = Math.sin(cameraAngle) * radius;
+  camera.lookAt(0, 0, 0); // 始终看向原点（地形中心）
 }
 
 //stats查看threejs渲染帧率
