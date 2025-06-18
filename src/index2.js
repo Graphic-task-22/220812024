@@ -9,7 +9,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 import buffer from './mesh/buffer';
-import lathe from './mesh/lathe';
+import lathe from './mesh/lathe.js';
 import tube from './mesh/tube';
 import shapemesh from './mesh/shape';
 import tunnel from './mesh/tunnnel';
